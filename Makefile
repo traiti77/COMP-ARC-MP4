@@ -1,5 +1,5 @@
 filename = top
-pcf_file = ../common/iceBlinkPico.pcf
+pcf_file = iceBlinkPico.pcf
 
 build:
 	yosys -p "synth_ice40 -top top -json $(filename).json" $(filename).sv

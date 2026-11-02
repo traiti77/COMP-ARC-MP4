@@ -24,8 +24,8 @@
 // can be accessed through the data memory ports.
 
 module memory #(
-    parameter IMEM_INIT_FILE_PREFIX = "rv32i_test", 
-    parameter DMEM_INIT_FILE_PREFIX = "dmem", 
+    parameter IMEM_INIT_FILE_PREFIX = "IMEM_", 
+    parameter DMEM_INIT_FILE_PREFIX = "", 
     parameter CLK_FREQ = 12000000
 )(
     input logic     clk, 
@@ -35,8 +35,8 @@ module memory #(
     input logic     [31:0] dmem_data_in, 
     input logic     [31:0] imem_address, 
     output logic    [31:0] imem_data_out, 
-    output logic    [31:0] dmem_data_out, 
-    output logic    reset, 
+    output logic    [31:0] dmem_data_out,
+    output logic    reset,
     output logic    led,                    // Active-high PWM output for user LED
     output logic    red,                    // Active-high PWM output for red LED
     output logic    green,                  // Active-high PWM output for green LED
@@ -421,7 +421,15 @@ module memory #(
         end
     end
 
-    assign reset = 1'b1;
+    logic [7:0] reset_counter = 8'd0;
+
+    always_ff @(posedge clk) begin
+        if (reset_counter < 8'd10) begin
+            reset_counter <= reset_counter + 1;
+        end
+    end
+
+assign reset = (reset_counter >= 8'd10);
 
 endmodule
 
@@ -455,9 +463,8 @@ module memory_array #(
         if (write_enable) begin
             memory[address] <= data_in;
         end
-        else begin
-            data_out <= memory[address];
-        end
     end
+
+    assign data_out = memory[address];
 
 endmodule
